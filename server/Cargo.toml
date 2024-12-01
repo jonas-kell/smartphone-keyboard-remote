@@ -1,0 +1,11 @@
+[package]
+name = "smartphone-keyboard-remote"
+version = "0.0.0"
+description = "Simple PWA that can be used as a remote keyboard for your PC in LAN"
+authors = ["jonas-kell"]
+license = "MIT"
+repository = "https://github.com/jonas-kell/smartphone-keyboard-remote"
+edition = "2021"
+
+[dependencies]
+enigo = "0.0.14"
