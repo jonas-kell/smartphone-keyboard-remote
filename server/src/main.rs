@@ -1,4 +1,3 @@
-use actix_files;
 use actix_web::body::MessageBody;
 use actix_web::dev::{ServiceRequest, ServiceResponse};
 use actix_web::middleware::{from_fn, Next};
@@ -7,9 +6,10 @@ use enigo::*;
 use error::CustomError;
 use include_dir::{include_dir, Dir};
 use local_ip_address::local_ip;
+use mime_guess::from_path;
 use serde::Serialize;
+use std::collections::HashMap;
 use std::net::IpAddr;
-use std::path::PathBuf;
 use std::thread;
 use std::time::Duration;
 
@@ -49,7 +49,10 @@ async fn localhost_ip_filter(
         .unwrap_or(IpAddr::V4([222, 222, 222, 222].into()));
     println!("Request from IP: {}", client_ip);
 
-    if is_local_ip(client_ip) {
+    if match client_ip {
+        IpAddr::V4(ipv4) => ipv4.is_loopback(),
+        _ => false,
+    } {
         let res = next.call(req).await?;
         Ok(res)
     } else {
@@ -60,14 +63,53 @@ async fn localhost_ip_filter(
     }
 }
 
-fn is_local_ip(ip: IpAddr) -> bool {
-    match ip {
-        IpAddr::V4(ipv4) => ipv4.is_loopback(),
-        _ => false,
+const STATIC_FILES: Dir = include_dir!("$CARGO_MANIFEST_DIR/../client/dist");
+
+fn cache_static_files() -> HashMap<String, &'static [u8]> {
+    let mut file_map = HashMap::new();
+
+    fn add_files_recursively(dir: &'static Dir, file_map: &mut HashMap<String, &'static [u8]>) {
+        for file in dir.files() {
+            if let Some(path) = file.path().to_str() {
+                file_map.insert(String::from(path), file.contents());
+            }
+        }
+
+        for subdir in dir.dirs() {
+            add_files_recursively(subdir, file_map);
+        }
     }
+
+    // Start scanning from the root directory with an empty base path.
+    add_files_recursively(&STATIC_FILES, &mut file_map);
+
+    file_map
 }
 
-const STATIC_FILES: Dir = include_dir!("$CARGO_MANIFEST_DIR/../client/dist");
+async fn static_handler(
+    file_map: web::Data<HashMap<String, &'static [u8]>>,
+    path: web::Path<String>,
+) -> impl Responder {
+    let path = path.into_inner();
+    let file_map = file_map.get_ref();
+    println!("Serving statically {}", path);
+
+    // Try to resolve the requested path or default to `index.html`.
+    let file_path = if path.is_empty() || path == "/" {
+        "index.html"
+    } else {
+        path.as_str()
+    };
+
+    if let Some(content) = file_map.get(file_path) {
+        let mime_type = from_path(file_path).first_or_octet_stream();
+        HttpResponse::Ok()
+            .content_type(mime_type.as_ref())
+            .body(*content)
+    } else {
+        HttpResponse::NotFound().body("404 Not Found")
+    }
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -90,13 +132,13 @@ async fn main() -> std::io::Result<()> {
     }
 
     HttpServer::new(move || {
+        let file_map = web::Data::new(cache_static_files());
+
         App::new()
+            .app_data(file_map)
             .service(
-                actix_files::Files::new(
-                    format!("/{}", path_segment).as_str(),
-                    PathBuf::from(STATIC_FILES.path()),
-                )
-                .index_file("index.html"),
+                web::scope(format!("/{}", path_segment).as_str())
+                    .route("/{path:.*}", web::get().to(static_handler)),
             )
             .service(
                 web::scope("/internal")
