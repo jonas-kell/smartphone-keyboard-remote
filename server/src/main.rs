@@ -2,6 +2,7 @@ use actix_web::middleware::from_fn;
 use actix_web::{web, App, HttpServer};
 use local_ip_address::local_ip;
 
+mod env_storage;
 mod error;
 mod execution;
 mod internal;

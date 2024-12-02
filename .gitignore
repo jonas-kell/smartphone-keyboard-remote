@@ -2,4 +2,4 @@
 **/dist
 **/dev-dist
 **/target
-/.env
+**/.env
