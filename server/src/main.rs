@@ -99,7 +99,7 @@ async fn main() -> std::io::Result<()> {
                 .index_file("index.html"),
             )
             .service(
-                web::scope("/internal/")
+                web::scope("/internal")
                     .route("/json", web::get().to(dynamic_route))
                     .wrap(from_fn(localhost_ip_filter)),
             )
