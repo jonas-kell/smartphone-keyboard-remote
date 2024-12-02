@@ -12,7 +12,7 @@ struct MyResponse {
 }
 pub async fn check_local_route() -> impl Responder {
     HttpResponse::Ok().json(MyResponse {
-        message: String::from("This is a dynamic JSON response!"),
+        message: String::from("You have access to localhost"),
     })
 }
 
