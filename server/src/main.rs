@@ -1,18 +1,16 @@
-use actix_files as fs;
+use actix_files;
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use enigo::*;
+use include_dir::{include_dir, Dir};
 use serde::Serialize;
 use std::path::PathBuf;
 use std::thread;
 use std::time::Duration;
 
-// Struct for JSON response
 #[derive(Serialize)]
 struct MyResponse {
     message: String,
 }
-
-// Dynamic route handler
 async fn dynamic_route() -> impl Responder {
     paste_test();
 
@@ -33,11 +31,10 @@ fn paste_test() {
     println!("end");
 }
 
+const STATIC_FILES: Dir = include_dir!("$CARGO_MANIFEST_DIR/../client/dist");
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // Path to the folder containing static files
-    let static_folder_path = PathBuf::from("./../client/dist");
-
     let server_host = "127.0.0.1";
     let server_port = "7865";
     let path_segment = "smartphone-keyboard-remote";
@@ -49,9 +46,9 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .service(
-                fs::Files::new(
+                actix_files::Files::new(
                     format!("/{}/", path_segment).as_str(),
-                    static_folder_path.clone(),
+                    PathBuf::from(STATIC_FILES.path()),
                 )
                 .index_file("index.html"),
             )
