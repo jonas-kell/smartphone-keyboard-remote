@@ -14,6 +14,17 @@ pub struct CommunicationStruct {
     payload: String,
 }
 
+fn get_or_regen_psk() -> String {
+    match read_from_env("mainpsk") {
+        Some(psk) => psk,
+        None => {
+            let new_psk = generate_key();
+            update_env_file("mainpsk", &new_psk).unwrap();
+            new_psk
+        }
+    }
+}
+
 pub async fn internal_route(body: web::Json<CommunicationStruct>) -> impl Responder {
     match body.method.as_str() {
         "check_local" => HttpResponse::Ok().json(CommunicationStruct {
@@ -21,14 +32,7 @@ pub async fn internal_route(body: web::Json<CommunicationStruct>) -> impl Respon
             payload: String::from(""),
         }),
         "get_psk" => {
-            let stored_psk = match read_from_env("mainpsk") {
-                Some(psk) => psk,
-                None => {
-                    let new_psk = generate_key();
-                    update_env_file("mainpsk", &new_psk).unwrap();
-                    new_psk
-                }
-            };
+            let stored_psk = get_or_regen_psk();
 
             HttpResponse::Ok().json(CommunicationStruct {
                 method: String::from("ret_psk"),
@@ -52,10 +56,18 @@ pub async fn internal_route(body: web::Json<CommunicationStruct>) -> impl Respon
 }
 
 pub async fn external_route(body: web::Json<CommunicationStruct>) -> impl Responder {
-    match body.method.as_str() {
+    let psk = get_or_regen_psk();
+    let decrypted_method = decrypt_with_psk(body.method.as_str(), &psk);
+    let decrypted_payload = decrypt_with_psk(body.payload.as_str(), &psk);
+
+    match decrypted_method.as_str() {
+        "check_psk" => HttpResponse::Ok().json(CommunicationStruct {
+            method: encrypt_with_psk("ack_psk", &psk),
+            payload: encrypt_with_psk("", &psk),
+        }),
         _ => HttpResponse::Ok().json(CommunicationStruct {
             method: String::from("unknown_method"),
-            payload: String::from(body.method.as_str()),
+            payload: decrypted_method,
         }),
     }
 }

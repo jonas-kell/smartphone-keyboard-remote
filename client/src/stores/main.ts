@@ -14,7 +14,7 @@ async function communicateWithBackendEncryptedInternal(
     payload: string
 ): Promise<[string, string]> {
     try {
-        const response = await fetch(`http://${ip}:${port}/external/command/`, {
+        const response = await fetch(`http://${ip}:${port}/external/command`, {
             method: "PUT", // HTTP method
             headers: {
                 "Content-Type": "application/json",
