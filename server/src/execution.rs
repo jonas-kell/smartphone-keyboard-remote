@@ -1,11 +1,15 @@
-use enigo::*;
+use enigo::{self, Keyboard};
 
-pub fn paste_test() {
-    let mut enigo = Enigo::new();
+fn init_enigo() -> enigo::Enigo {
+    enigo::Enigo::new(&enigo::Settings::default()).unwrap()
+}
 
-    println!("enigo start");
-    enigo.key_down(Key::Control);
-    enigo.key_click(Key::Layout('v'));
-    enigo.key_up(Key::Control);
-    println!("enigo end");
+pub fn keyboard_basic_text(input: &str) {
+    let mut enigo = init_enigo();
+    let _ = enigo.text(input);
+}
+
+pub fn keyboard_delete() {
+    let mut enigo = init_enigo();
+    let _ = enigo.key(enigo::Key::Backspace, enigo::Direction::Click);
 }

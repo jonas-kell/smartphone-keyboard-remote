@@ -127,6 +127,22 @@ export default defineStore("main", () => {
             }
         }
     }
+    async function checkedEncryptedBackendCommunication(method: string, payload: string, checkResponseMethod: string) {
+        if (serverConnectionEstablished.value) {
+            let usePSK = psk.value as string; // if connection established, this cannot be null
+            let useIP = ip.value as string; // if connection established, this cannot be null
+
+            let [responseMethod, responsePayload] = await communicateWithBackendEncryptedInternal(useIP, usePSK, method, payload);
+
+            if (responseMethod == checkResponseMethod) {
+                console.log("Successful execution of: ", method);
+            } else {
+                console.error(responseMethod, responsePayload);
+            }
+        } else {
+            console.error("Can not send commands to server, while connection not established");
+        }
+    }
 
     const isLocalhost = computed(() => {
         return !typePending.value && localhostAccess.value;
@@ -147,5 +163,6 @@ export default defineStore("main", () => {
         serverConnectionEstablished,
         tryValidateConnection,
         communicateWithBackendUnencryptedLocalhost,
+        checkedEncryptedBackendCommunication,
     };
 });

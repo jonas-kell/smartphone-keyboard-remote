@@ -13,6 +13,7 @@
             </h2>
         </template>
         <template v-if="mainStore.isLocalhost"> <ConfigureLocalhost></ConfigureLocalhost> </template>
+        <template v-if="mainStore.isExternal"> <BasicUsage></BasicUsage> </template>
     </template>
     <span v-else>Page Type status pending</span>
 </template>
@@ -20,6 +21,7 @@
 <script setup lang="ts">
     import useMainStore from "./../stores/main";
     import ConfigureLocalhost from "./ConfigureLocalhost.vue";
+    import BasicUsage from "./BasicUsage.vue";
 
     const mainStore = useMainStore();
 </script>
