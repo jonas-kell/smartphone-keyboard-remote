@@ -1,5 +1,5 @@
 <template>
-    <div v-if="props.text != '' && props.text != null">
+    <div :style="{ visibility: props.text == '' || props.text == null ? 'hidden' : 'unset' }">
         <canvas ref="qrcodeCanvas"></canvas>
     </div>
 </template>
@@ -14,18 +14,21 @@
 
     const qrcodeCanvas = ref(null);
 
-    watch([props], () => {
-        console.log("asd");
+    watch(props, () => {
         generateQRCode(props.text);
     });
 
     const generateQRCode = async (text: string) => {
-        try {
-            if (qrcodeCanvas.value) {
-                await QRCode.toCanvas(qrcodeCanvas.value, text);
+        if (text != null && text != "" && text) {
+            try {
+                if (qrcodeCanvas.value) {
+                    await QRCode.toCanvas(qrcodeCanvas.value, text);
+                } else {
+                    console.error("Canvas not found to write to");
+                }
+            } catch (error) {
+                console.error("Error generating QR Code:", error);
             }
-        } catch (error) {
-            console.error("Error generating QR Code:", error);
         }
     };
 </script>

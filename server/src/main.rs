@@ -1,6 +1,5 @@
 use actix_web::middleware::from_fn;
 use actix_web::{web, App, HttpServer};
-use crypto::{decrypt_with_psk, encrypt_with_psk, generate_key};
 use local_ip_address::local_ip;
 
 mod crypto;
@@ -12,25 +11,6 @@ mod static_files;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let key = generate_key();
-    let message = "testmessageäßeà";
-    println!("Key: {}", key);
-    let encrypted = encrypt_with_psk(message, &key);
-    println!("Encrypted: {}", encrypted);
-    let decrypted = decrypt_with_psk(&encrypted, &key);
-    println!("Decrypted: {}", decrypted);
-
-    let test_key_str = "VTkVklZkI9AWVDsLKyiQ1x7pLiubabKxkqIXd3CokRc=";
-    let test_encrypted_str =
-        "NyJx/bto4F8wM3wD+hhm0b6h1pfm8NJz:pudkeMtQnd3p7FPjwiGuBZulrR5c7BhGGAjeunl2aizaGw==";
-    let test_decrypt = decrypt_with_psk(test_encrypted_str, test_key_str);
-    println!("Decrypted from other encryption: {}", test_decrypt);
-
-    println!(
-        "got: {}",
-        env_storage::read_from_env("test").unwrap_or_default()
-    );
-
     let server_host = "0.0.0.0";
     let server_port = "7865";
     let path_segment = "smartphone-keyboard-remote";
@@ -60,8 +40,11 @@ async fn main() -> std::io::Result<()> {
             )
             .service(
                 web::scope("/internal")
-                    .route("/check", web::get().to(internal::check_local_route))
+                    .route("/command", web::put().to(internal::internal_route))
                     .wrap(from_fn(internal::localhost_ip_filter)),
+            )
+            .service(
+                web::scope("/external").route("/command", web::put().to(internal::external_route)),
             )
             .service(web::redirect("/", format!("/{}/", path_segment)))
     })
