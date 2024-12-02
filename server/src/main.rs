@@ -1,65 +1,11 @@
-use actix_web::body::MessageBody;
-use actix_web::dev::{ServiceRequest, ServiceResponse};
-use actix_web::middleware::{from_fn, Next};
-use actix_web::{web, App, Error, HttpResponse, HttpServer, Responder};
-use enigo::*;
-use error::CustomError;
+use actix_web::middleware::from_fn;
+use actix_web::{web, App, HttpServer};
 use local_ip_address::local_ip;
-use serde::Serialize;
-use std::net::IpAddr;
-use std::thread;
-use std::time::Duration;
 
 mod error;
+mod execution;
+mod internal;
 mod static_files;
-
-#[derive(Serialize)]
-struct MyResponse {
-    message: String,
-}
-async fn dynamic_route() -> impl Responder {
-    paste_test();
-
-    HttpResponse::Ok().json(MyResponse {
-        message: String::from("This is a dynamic JSON response!"),
-    })
-}
-
-fn paste_test() {
-    let mut enigo = Enigo::new();
-
-    println!("pasting");
-    thread::sleep(Duration::from_secs(1));
-    // Simulate pressing a combination: Ctrl+V
-    enigo.key_down(Key::Control);
-    enigo.key_click(Key::Layout('v'));
-    enigo.key_up(Key::Control);
-    println!("end");
-}
-
-async fn localhost_ip_filter(
-    req: ServiceRequest,
-    next: Next<impl MessageBody>,
-) -> Result<ServiceResponse<impl MessageBody>, Error> {
-    let client_ip = req
-        .peer_addr()
-        .map(|addr| addr.ip())
-        .unwrap_or(IpAddr::V4([222, 222, 222, 222].into()));
-    println!("Request from IP: {}", client_ip);
-
-    if match client_ip {
-        IpAddr::V4(ipv4) => ipv4.is_loopback(),
-        _ => false,
-    } {
-        let res = next.call(req).await?;
-        Ok(res)
-    } else {
-        Err(Error::from(CustomError::new(
-            403,
-            String::from("Only accessible from localhost"),
-        )))
-    }
-}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -92,8 +38,8 @@ async fn main() -> std::io::Result<()> {
             )
             .service(
                 web::scope("/internal")
-                    .route("/json", web::get().to(dynamic_route))
-                    .wrap(from_fn(localhost_ip_filter)),
+                    .route("/check", web::get().to(internal::check_local_route))
+                    .wrap(from_fn(internal::localhost_ip_filter)),
             )
             .service(web::redirect("/", format!("/{}/", path_segment)))
     })
