@@ -13,3 +13,8 @@ pub fn keyboard_delete() {
     let mut enigo = init_enigo();
     let _ = enigo.key(enigo::Key::Backspace, enigo::Direction::Click);
 }
+
+pub fn keyboard_enter() {
+    let mut enigo = init_enigo();
+    let _ = enigo.key(enigo::Key::Return, enigo::Direction::Click);
+}

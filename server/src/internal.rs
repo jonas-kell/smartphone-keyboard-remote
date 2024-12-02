@@ -1,7 +1,7 @@
 use crate::crypto::{decrypt_with_psk, encrypt_with_psk, generate_key};
 use crate::env_storage::{read_from_env, update_env_file};
 use crate::error::CustomError;
-use crate::execution::{keyboard_basic_text, keyboard_delete};
+use crate::execution::{keyboard_basic_text, keyboard_delete, keyboard_enter};
 use actix_web::body::MessageBody;
 use actix_web::dev::{ServiceRequest, ServiceResponse};
 use actix_web::middleware::Next;
@@ -76,8 +76,27 @@ pub async fn external_route(body: web::Json<CommunicationStruct>) -> impl Respon
                 payload: encrypt_with_psk("", &psk),
             })
         }
+        "text_enter" => {
+            let text = decrypted_payload;
+
+            keyboard_basic_text(&text);
+            keyboard_enter();
+
+            HttpResponse::Ok().json(CommunicationStruct {
+                method: encrypt_with_psk("ack_text", &psk),
+                payload: encrypt_with_psk("", &psk),
+            })
+        }
         "key_backspace" => {
             keyboard_delete();
+
+            HttpResponse::Ok().json(CommunicationStruct {
+                method: encrypt_with_psk("ack_key", &psk),
+                payload: encrypt_with_psk("", &psk),
+            })
+        }
+        "key_enter" => {
+            keyboard_enter();
 
             HttpResponse::Ok().json(CommunicationStruct {
                 method: encrypt_with_psk("ack_key", &psk),
