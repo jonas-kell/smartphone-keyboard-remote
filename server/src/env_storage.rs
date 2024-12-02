@@ -58,6 +58,8 @@ pub fn update_env_file(key: &str, value: &str) -> io::Result<()> {
 
 /// Reads a value from the `.env` file using `dotenvy`.
 pub fn read_from_env(key: &str) -> Option<String> {
+    env::remove_var(key);
+
     let env_path = ensure_env_file().ok()?;
 
     if from_path(&env_path).is_err() {

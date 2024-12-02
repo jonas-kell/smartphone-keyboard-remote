@@ -1,3 +1,5 @@
+use actix_cors::Cors;
+use actix_web::http::header;
 use actix_web::middleware::from_fn;
 use actix_web::{web, App, HttpServer};
 use local_ip_address::local_ip;
@@ -32,8 +34,15 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         let file_map = web::Data::new(static_files::cache_static_files());
 
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allowed_methods(vec!["GET", "PUT"])
+            .allowed_headers(vec![header::CONTENT_TYPE, header::ACCEPT])
+            .max_age(3600);
+
         App::new()
             .app_data(file_map)
+            .wrap(cors)
             .service(
                 web::scope(format!("/{}", path_segment).as_str())
                     .route("/{path:.*}", web::get().to(static_files::static_handler)),

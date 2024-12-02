@@ -10,6 +10,17 @@ Hosted and installable (as a [PWA](https://web.dev/progressive-web-apps/)) under
 
 ![QR](QR.png)
 
+To make the hosted version work, you have to allow it in the settings of your browser.
+
+Because the hosted version is `https` (so that you can have camera and PWA goodness in teh required `secure-context`).
+The application has internal encryption with pre-shared keys, so that you do not require a `https-certificate` for your self-hosted server.
+But modern browsers then block our (properly encrypted, but it doesn't know that) `http` requests, because of [`mixed content`](https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content) (https to http).
+
+Following tutorials, one can [Disable this behavior](https://experienceleague.adobe.com/en/docs/target/using/experiences/vec/troubleshoot-composer/mixed-content).
+Paste `chrome://flags/#unsafely-treat-insecure-origin-as-secure` into the chrome address-bar.
+Enable the mixed content for your server ip only (you see it at the server start, !! include `http://` and `:7865`):
+![MixedContent](ChromeInsecureOrigins.png)
+
 ## Run the backend
 
 ```cmd
@@ -24,7 +35,7 @@ npm install
 npm run build
 cd ..
 cd server
-cargo run
+cargo build --release
 ```
 
 ## Dev the frontend
