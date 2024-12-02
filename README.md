@@ -37,6 +37,23 @@ npm install
 npm run dev
 ```
 
+## Dev the backend
+
+```cmd
+# make sure to have rust installed: https://www.rust-lang.org/tools/install
+
+sudo apt-get install libxdo-dev
+
+# make sure you have node installed: https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating
+
+cd client
+npm install
+npm run build
+cd ..
+cd server
+cargo watch -x "run dev"
+```
+
 <!--
 https://cthedot.de/icongen/
 https://realfavicongenerator.net/
