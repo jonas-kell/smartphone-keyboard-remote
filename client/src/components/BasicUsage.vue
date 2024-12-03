@@ -1,9 +1,11 @@
 <template>
     <p>Type Here:</p>
-    <input type="text" v-model="textToType" @blur="typeText" />
+    <input :type="passwordField ? 'password' : 'text'" v-model="textToType" @blur="typeText" />
     <button @click="enter">Enter</button>
-    <br />
+    <checkbox <br />
     <button @click="backspace">Delete</button>
+    <input type="checkbox" id="password" v-model="passwordField" />
+    <label for="password">Password</label>
 </template>
 
 <script setup lang="ts">
@@ -13,6 +15,7 @@
     const mainStore = useMainStore();
 
     const textToType = ref("");
+    const passwordField = ref(false);
 
     async function backspace() {
         mainStore.checkedEncryptedBackendCommunication("key_backspace", "", "ack_key");
