@@ -2,7 +2,7 @@
     <p>Type Here:</p>
     <input :type="passwordField ? 'password' : 'text'" v-model="textToType" @blur="typeText" />
     <button @click="enter">Enter</button>
-    <checkbox <br />
+    <br />
     <button @click="backspace">Delete</button>
     <input type="checkbox" id="password" v-model="passwordField" />
     <label for="password">Password</label>
