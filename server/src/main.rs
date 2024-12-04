@@ -2,6 +2,7 @@ use actix_cors::Cors;
 use actix_web::http::header;
 use actix_web::middleware::from_fn;
 use actix_web::{web, App, HttpServer};
+use crypto::init_rng;
 use local_ip_address::local_ip;
 use open;
 
@@ -14,6 +15,9 @@ mod static_files;
 
 #[actix_web::main]
 async fn main() -> () {
+    // IMPORTANT OTHERWISE CRYPTO BREAKS
+    init_rng();
+
     let server_host = "0.0.0.0";
     let server_port = "7865";
     let path_segment = "smartphone-keyboard-remote";
