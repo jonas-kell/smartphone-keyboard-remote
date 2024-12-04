@@ -6,6 +6,10 @@
     <QRCodeDisplay :text="backendPSK"></QRCodeDisplay>
 
     Go to <a href="https://jonas-kell.github.io/smartphone-keyboard-remote/#/">hosted version</a> with mobile device
+    <br />
+    <br />
+    <br />
+    <button @click="shutdown">Shut down server</button>
 </template>
 
 <script setup lang="ts">
@@ -36,6 +40,16 @@
         } else {
             console.error(responseMethod, responsePayload);
         }
+    }
+
+    async function shutdown() {
+        // it wil self-destruct non gracefully, no bother checking return of this message, sry
+        mainStore.communicateWithBackendUnencryptedLocalhost("shutdown_server", "");
+
+        // reload window to show server gone
+        setTimeout(() => {
+            location.reload();
+        }, 500);
     }
 </script>
 

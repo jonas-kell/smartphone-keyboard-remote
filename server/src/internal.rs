@@ -40,6 +40,11 @@ pub async fn internal_route(body: web::Json<CommunicationStruct>) -> impl Respon
                 payload: stored_psk,
             })
         }
+        "shutdown_server" => {
+            // no bother implementing graceful shutdown...
+            println!("Requested server shutdown");
+            std::process::exit(0);
+        }
         "regenerate_psk" => {
             let new_psk = generate_key();
             update_env_file("mainpsk", &new_psk).unwrap();
