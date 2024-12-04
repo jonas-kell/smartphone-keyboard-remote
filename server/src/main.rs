@@ -3,6 +3,7 @@ use actix_web::http::header;
 use actix_web::middleware::from_fn;
 use actix_web::{web, App, HttpServer};
 use local_ip_address::local_ip;
+use open;
 
 mod crypto;
 mod env_storage;
@@ -12,15 +13,14 @@ mod internal;
 mod static_files;
 
 #[actix_web::main]
-async fn main() -> std::io::Result<()> {
+async fn main() -> () {
     let server_host = "0.0.0.0";
     let server_port = "7865";
     let path_segment = "smartphone-keyboard-remote";
     println!("Server started on {}:{}", server_host, server_port);
-    println!(
-        "Localhost access from http://{}:{}/{}/",
-        "127.0.0.1", server_port, path_segment
-    );
+    let localhost_control_panel =
+        format!("http://{}:{}/{}/", "127.0.0.1", server_port, path_segment);
+    println!("Localhost access from {}", localhost_control_panel);
     match local_ip() {
         Err(err) => println!("{}", err),
         Ok(add) => {
@@ -31,7 +31,7 @@ async fn main() -> std::io::Result<()> {
         }
     }
 
-    HttpServer::new(move || {
+    match HttpServer::new(move || {
         let file_map = web::Data::new(static_files::cache_static_files());
 
         let cors = Cors::default()
@@ -57,7 +57,20 @@ async fn main() -> std::io::Result<()> {
             )
             .service(web::redirect("/", format!("/{}/", path_segment)))
     })
-    .bind(format!("{}:{}", server_host, server_port))?
-    .run()
-    .await
+    .bind(format!("{}:{}", server_host, server_port))
+    {
+        Ok(bound_server) => {
+            _ = bound_server.run().await;
+            println!("Server shut down");
+        }
+        Err(_) => {
+            println!("Server could not be started, probably port blocked");
+
+            // nice feature: open the control-browser, if that is the case
+            _ = open::that(localhost_control_panel);
+        }
+    };
 }
+
+// Kill the running server if not in terminal:
+// fuser -k 7865/tcp
