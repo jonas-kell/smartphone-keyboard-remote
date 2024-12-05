@@ -1,13 +1,8 @@
 use crate::crypto::{decrypt_with_psk, encrypt_with_psk, generate_key};
 use crate::env_storage::{read_from_env, update_env_file};
-use crate::error::CustomError;
 use crate::execution::{keyboard_basic_text, keyboard_delete, keyboard_enter};
-use actix_web::body::MessageBody;
-use actix_web::dev::{ServiceRequest, ServiceResponse};
-use actix_web::middleware::Next;
-use actix_web::{web, Error, HttpResponse, Responder};
+use actix_web::{web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
-use std::net::IpAddr;
 
 #[derive(Serialize, Deserialize)]
 pub struct CommunicationStruct {
@@ -112,29 +107,5 @@ pub async fn external_route(body: web::Json<CommunicationStruct>) -> impl Respon
             method: String::from("unknown_method"),
             payload: decrypted_method,
         }),
-    }
-}
-
-pub async fn localhost_ip_filter(
-    req: ServiceRequest,
-    next: Next<impl MessageBody>,
-) -> Result<ServiceResponse<impl MessageBody>, Error> {
-    let client_ip = req
-        .peer_addr()
-        .map(|addr| addr.ip())
-        .unwrap_or(IpAddr::V4([222, 222, 222, 222].into()));
-    println!("Request from IP: {}", client_ip);
-
-    if match client_ip {
-        IpAddr::V4(ipv4) => ipv4.is_loopback(),
-        _ => false,
-    } {
-        let res = next.call(req).await?;
-        Ok(res)
-    } else {
-        Err(Error::from(CustomError::new(
-            403,
-            String::from("Only accessible from localhost"),
-        )))
     }
 }

@@ -3,14 +3,14 @@ use actix_web::http::header;
 use actix_web::middleware::from_fn;
 use actix_web::{web, App, HttpServer};
 use crypto::init_rng;
-use local_ip_address::local_ip;
 use open;
 
 mod crypto;
 mod env_storage;
 mod error;
 mod execution;
-mod internal;
+mod ip;
+mod routes;
 mod static_files;
 
 #[actix_web::main]
@@ -25,15 +25,12 @@ async fn main() -> () {
     let localhost_control_panel =
         format!("http://{}:{}/{}/", "127.0.0.1", server_port, path_segment);
     println!("Localhost access from {}", localhost_control_panel);
-    match local_ip() {
-        Err(err) => println!("{}", err),
-        Ok(add) => {
-            println!(
-                "LAN access from http://{}:{}/{}/",
-                add, server_port, path_segment
-            )
-        }
-    }
+    println!(
+        "LAN access from http://{}:{}/{}/",
+        ip::get_local_ip(),
+        server_port,
+        path_segment
+    );
 
     match HttpServer::new(move || {
         let file_map = web::Data::new(static_files::cache_static_files());
@@ -53,11 +50,11 @@ async fn main() -> () {
             )
             .service(
                 web::scope("/internal")
-                    .route("/command", web::put().to(internal::internal_route))
-                    .wrap(from_fn(internal::localhost_ip_filter)),
+                    .route("/command", web::put().to(routes::internal_route))
+                    .wrap(from_fn(ip::localhost_ip_filter)),
             )
             .service(
-                web::scope("/external").route("/command", web::put().to(internal::external_route)),
+                web::scope("/external").route("/command", web::put().to(routes::external_route)),
             )
             .service(web::redirect("/", format!("/{}/", path_segment)))
     })
