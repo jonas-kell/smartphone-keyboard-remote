@@ -10,7 +10,7 @@
 
         <div
             :style="{
-                display: cameraOnceAvailable ? 'none' : 'unset',
+                display: cameraOnceAvailable ? 'unset' : 'none',
             }"
         >
             <qrcode-stream
