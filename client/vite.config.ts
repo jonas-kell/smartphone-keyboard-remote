@@ -22,7 +22,7 @@ export default defineConfig({
             ],
             manifest: {
                 name: "Smartphone Keyboard Remote",
-                id: "smartphone-keyboard-remote-2.0",
+                id: "smartphone-keyboard-remote-2.1",
                 theme_color: "#1976d2",
                 background_color: "#fafafa",
                 display: "standalone",
