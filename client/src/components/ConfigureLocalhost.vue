@@ -1,12 +1,18 @@
 <template>
-    <p>The key from backend:</p>
+    <p>The server Local Ip:</p>
+    <input type="text" readonly v-model="backendLocalIp" />
+    <button @click="copyToClipboard(backendLocalIp)">Copy Ip</button>
+    <p>The server Pre-Shared-Key:</p>
     <input type="text" readonly v-model="backendPSK" />
-    <button @click="regenerateKey">Regenerate</button>
-
-    <QRCodeDisplay :text="backendPSK"></QRCodeDisplay>
-
-    Go to <a href="https://jonas-kell.github.io/smartphone-keyboard-remote/#/">hosted version</a> with mobile device
+    <button @click="copyToClipboard(backendPSK)">Copy PSK</button>
     <br />
+    <br />
+    <button @click="regenerateKey">Regenerate Key</button>
+
+    <p>Go to <a href="https://jonas-kell.github.io/smartphone-keyboard-remote/#/">hosted version</a> with mobile device</p>
+    <p>Any scan with device to get full config</p>
+    <QRCodeDisplay :text="backendLocalIp + ':' + backendPSK"></QRCodeDisplay>
+
     <br />
     <br />
     <button @click="shutdown">Shut down server</button>
@@ -20,6 +26,8 @@
     const mainStore = useMainStore();
 
     const backendPSK = ref("");
+    const backendLocalIp = ref("");
+
     async function getPSKFromBackend() {
         let [responseMethod, responsePayload] = await mainStore.communicateWithBackendUnencryptedLocalhost("get_psk", "");
 
@@ -40,6 +48,22 @@
         } else {
             console.error(responseMethod, responsePayload);
         }
+    }
+
+    async function getIPFromBackend() {
+        backendPSK.value = "";
+        let [responseMethod, responsePayload] = await mainStore.communicateWithBackendUnencryptedLocalhost("get_ip", "");
+
+        if (responseMethod == "ret_ip") {
+            backendLocalIp.value = responsePayload;
+        } else {
+            console.error(responseMethod, responsePayload);
+        }
+    }
+    getIPFromBackend();
+
+    function copyToClipboard(txt: string) {
+        navigator.clipboard.writeText(txt);
     }
 
     async function shutdown() {

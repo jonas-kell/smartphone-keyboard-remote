@@ -6,9 +6,13 @@
             </option>
         </select>
 
-        <p class="error">{{ error }}</p>
+        <p class="error" v-if="error != '' && error">{{ error }}</p>
 
-        <div>
+        <div
+            :style="{
+                display: cameraOnceAvailable ? 'none' : 'unset',
+            }"
+        >
             <qrcode-stream
                 :constraints="selectedConstraints"
                 :track="paintOutline"
@@ -61,7 +65,11 @@
     ];
     const constraintOptions = ref(defaultConstraintOptions);
 
+    const cameraOnceAvailable = ref(false);
+
     async function onCameraReady() {
+        cameraOnceAvailable.value = true;
+
         // NOTE: on iOS we can't invoke `enumerateDevices` before the user has given
         // camera access permission. `QrcodeStream` internally takes care of
         // requesting the permissions. The `camera-on` event should guarantee that this

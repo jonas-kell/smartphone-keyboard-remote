@@ -103,23 +103,23 @@ export default defineStore("main", () => {
     initLocalhostType();
 
     const serverConnectionEstablished = ref(false);
-    async function tryValidateConnection(pskTest: string | null = null) {
+    async function tryValidateConnection(ipTest: string | null = null, pskTest: string | null = null) {
         serverConnectionEstablished.value = false;
+        let useIP = ip.value;
+        if (ipTest != null && ipTest) {
+            useIP = ipTest;
+        }
         let usePSK = psk.value;
         if (pskTest != null && pskTest) {
             usePSK = pskTest;
         }
-        if (usePSK != null && usePSK && ip.value != null && ip.value) {
-            let [responseMethod, responsePayload] = await communicateWithBackendEncryptedInternal(
-                ip.value,
-                usePSK,
-                "check_psk",
-                ""
-            );
+        if (usePSK != null && usePSK && useIP != null && useIP) {
+            let [responseMethod, responsePayload] = await communicateWithBackendEncryptedInternal(useIP, usePSK, "check_psk", "");
 
             if (responseMethod == "ack_psk") {
                 serverConnectionEstablished.value = true;
                 if (usePSK != psk.value) {
+                    ip.value = usePSK;
                     psk.value = usePSK;
                 }
             } else {
@@ -127,6 +127,7 @@ export default defineStore("main", () => {
             }
         }
     }
+
     async function checkedEncryptedBackendCommunication(method: string, payload: string, checkResponseMethod: string) {
         if (serverConnectionEstablished.value) {
             let usePSK = psk.value as string; // if connection established, this cannot be null

@@ -1,6 +1,7 @@
 use crate::crypto::{decrypt_with_psk, encrypt_with_psk, generate_key};
 use crate::env_storage::{read_from_env, update_env_file};
 use crate::execution::{keyboard_basic_text, keyboard_delete, keyboard_enter};
+use crate::ip;
 use actix_web::{web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
 
@@ -35,6 +36,10 @@ pub async fn internal_route(body: web::Json<CommunicationStruct>) -> impl Respon
                 payload: stored_psk,
             })
         }
+        "get_ip" => HttpResponse::Ok().json(CommunicationStruct {
+            method: String::from("ret_ip"),
+            payload: ip::get_local_ip(),
+        }),
         "shutdown_server" => {
             // no bother implementing graceful shutdown...
             println!("Requested server shutdown");
