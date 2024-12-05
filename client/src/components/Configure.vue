@@ -7,6 +7,19 @@
         are installation instructions.
     </p>
 
+    <h2>Mixed-Content-Settings:</h2>
+    <p>
+        Read the explanation for this setting
+        <a href="https://github.com/jonas-kell/smartphone-keyboard-remote?tab=readme-ov-file#hosted-version">HERE</a>. Change the
+        Chrome Setting (Or find out how to change in another browser).
+    </p>
+    <p>
+        Add "http://xxx.xxx.xxx.xxx:5173/" (with ip replaced by what server shows) to the list and save.
+        <a href="chrome://flags/#unsafely-treat-insecure-origin-as-secure">
+            chrome://flags/#unsafely-treat-insecure-origin-as-secure
+        </a>
+    </p>
+
     <h2>Backend Connection</h2>
     <p>Preferably: Scan the QR-Code the server shows with our mobile device:</p>
     <h2>

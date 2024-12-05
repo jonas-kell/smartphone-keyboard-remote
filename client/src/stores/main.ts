@@ -119,7 +119,7 @@ export default defineStore("main", () => {
             if (responseMethod == "ack_psk") {
                 serverConnectionEstablished.value = true;
                 if (usePSK != psk.value) {
-                    ip.value = usePSK;
+                    ip.value = useIP;
                     psk.value = usePSK;
                 }
             } else {
