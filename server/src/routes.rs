@@ -1,6 +1,6 @@
 use crate::crypto::{decrypt_with_psk, encrypt_with_psk, generate_key};
 use crate::env_storage::{read_from_env, update_env_file};
-use crate::execution::{keyboard_basic_text, keyboard_delete, keyboard_enter};
+use crate::execution::{keyboard_basic_text, keyboard_delete, keyboard_enter, keyboard_various};
 use crate::ip;
 use actix_web::{web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
@@ -102,6 +102,40 @@ pub async fn external_route(body: web::Json<CommunicationStruct>) -> impl Respon
         }
         "key_enter" => {
             keyboard_enter();
+
+            HttpResponse::Ok().json(CommunicationStruct {
+                method: encrypt_with_psk("ack_key", &psk),
+                payload: encrypt_with_psk("", &psk),
+            })
+        }
+        "key_various_down" => {
+            let key_code = decrypted_payload;
+            keyboard_various(&key_code, true);
+
+            HttpResponse::Ok().json(CommunicationStruct {
+                method: encrypt_with_psk("ack_key", &psk),
+                payload: encrypt_with_psk("", &psk),
+            })
+        }
+        "key_various_up" => {
+            let key_code = decrypted_payload;
+            keyboard_various(&key_code, false);
+
+            HttpResponse::Ok().json(CommunicationStruct {
+                method: encrypt_with_psk("ack_key", &psk),
+                payload: encrypt_with_psk("", &psk),
+            })
+        }
+        "key_super_down" => {
+            keyboard_various("super", true);
+
+            HttpResponse::Ok().json(CommunicationStruct {
+                method: encrypt_with_psk("ack_key", &psk),
+                payload: encrypt_with_psk("", &psk),
+            })
+        }
+        "key_super_up" => {
+            keyboard_various("super", false);
 
             HttpResponse::Ok().json(CommunicationStruct {
                 method: encrypt_with_psk("ack_key", &psk),
