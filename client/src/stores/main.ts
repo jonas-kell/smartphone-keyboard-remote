@@ -165,5 +165,6 @@ export default defineStore("main", () => {
         tryValidateConnection,
         communicateWithBackendUnencryptedLocalhost,
         checkedEncryptedBackendCommunication,
+        port,
     };
 });

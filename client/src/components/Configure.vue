@@ -14,7 +14,7 @@
         Chrome Setting (Or find out how to change in another browser).
     </p>
     <p>
-        Add "http://xxx.xxx.xxx.xxx:5173/" (with ip replaced by what server shows) to the list and save.
+        Add "http://xxx.xxx.xxx.xxx:{{ port }}/" (with ip replaced by what server shows) to the list and save.
         <a href="chrome://flags/#unsafely-treat-insecure-origin-as-secure">
             chrome://flags/#unsafely-treat-insecure-origin-as-secure
         </a>
@@ -86,6 +86,7 @@
     import useMainStore from "../stores/main";
 
     const mainStore = useMainStore();
+    const port = mainStore.port;
 </script>
 
 <style scoped></style>
