@@ -12,7 +12,7 @@ Hosted and installable (as a [PWA](https://web.dev/progressive-web-apps/)) under
 
 To make the hosted version work, you have to allow it in the settings of your browser.
 
-Because the hosted version is `https` (so that you can have camera and PWA goodness in teh required `secure-context`).
+Because the hosted version is `https` (so that you can have camera and PWA goodness in the required `secure-context`).
 The application has internal encryption with pre-shared keys, so that you do not require a `https-certificate` for your self-hosted server.
 But modern browsers then block our (properly encrypted, but it doesn't know that) `http` requests, because of [`mixed content`](https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content) (https to http).
 
@@ -54,6 +54,7 @@ npm run dev
 # make sure to have rust installed: https://www.rust-lang.org/tools/install
 
 sudo apt-get install libxdo-dev
+cargo install cargo-watch --locked
 
 # make sure you have node installed: https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating
 

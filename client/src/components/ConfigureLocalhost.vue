@@ -10,7 +10,7 @@
     <button @click="regenerateKey">Regenerate Key</button>
 
     <p>Go to <a href="https://jonas-kell.github.io/smartphone-keyboard-remote/#/">hosted version</a> with mobile device</p>
-    <p>Any scan with device to get full config</p>
+    <p>And scan with device to get full config</p>
     <QRCodeDisplay :text="backendLocalIp + ':' + backendPSK"></QRCodeDisplay>
 
     <br />
