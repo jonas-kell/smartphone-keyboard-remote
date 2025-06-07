@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Key Event Logger</title>
+</head>
+<body>
+  <h1>Press any key</h1>
+  <script>
+    function logAndPrevent(event) {
+      event.preventDefault();
+      console.log(`${event.type}: key="${event.key}", code="${event.code}", keyCode=${event.keyCode}`);
+    }
+
+    ['keydown', 'keypress', 'keyup'].forEach(type => {
+      document.addEventListener(type, logAndPrevent);
+    });
+  </script>
+</body>
+</html>

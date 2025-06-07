@@ -126,22 +126,6 @@ pub async fn external_route(body: web::Json<CommunicationStruct>) -> impl Respon
                 payload: encrypt_with_psk("", &psk),
             })
         }
-        "key_super_down" => {
-            keyboard_various("super", true);
-
-            HttpResponse::Ok().json(CommunicationStruct {
-                method: encrypt_with_psk("ack_key", &psk),
-                payload: encrypt_with_psk("", &psk),
-            })
-        }
-        "key_super_up" => {
-            keyboard_various("super", false);
-
-            HttpResponse::Ok().json(CommunicationStruct {
-                method: encrypt_with_psk("ack_key", &psk),
-                payload: encrypt_with_psk("", &psk),
-            })
-        }
         _ => HttpResponse::Ok().json(CommunicationStruct {
             method: String::from("unknown_method"),
             payload: decrypted_method,

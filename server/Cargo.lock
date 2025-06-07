@@ -1463,6 +1463,7 @@ dependencies = [
  "include_dir",
  "local-ip-address",
  "mime_guess",
+ "once_cell",
  "open",
  "serde",
  "serde_json",

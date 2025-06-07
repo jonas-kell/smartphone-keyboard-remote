@@ -1,7 +1,12 @@
 use enigo::{self, Keyboard};
+use once_cell::sync::Lazy;
+use std::sync::Mutex;
 
-fn init_enigo() -> enigo::Enigo {
-    enigo::Enigo::new(&enigo::Settings::default()).unwrap()
+static ENIGO: Lazy<Mutex<enigo::Enigo>> =
+    Lazy::new(|| Mutex::new(enigo::Enigo::new(&enigo::Settings::default()).unwrap()));
+
+fn init_enigo() -> std::sync::MutexGuard<'static, enigo::Enigo> {
+    ENIGO.lock().unwrap()
 }
 
 pub fn keyboard_basic_text(input: &str) {
@@ -51,7 +56,7 @@ fn translate(key: &str) -> KeyWrapper {
         "Home" => KeyWrapper::KeyEnum(enigo::Key::Home),
         "NumLock" => KeyWrapper::KeyEnum(enigo::Key::Numlock),
         "NumpadEnter" => KeyWrapper::KeyEnum(enigo::Key::Return),
-        "AltRight" => KeyWrapper::Raw(92),
+        "AltRight" => KeyWrapper::Raw(92), // special case
 
         // Extra Keys
         "Backquote" => KeyWrapper::Raw(49),
@@ -167,8 +172,16 @@ fn translate(key: &str) -> KeyWrapper {
     }
 }
 
-pub fn keyboard_various(key_code: &str, down: bool) {
+pub fn keyboard_various(key_information: &str, down: bool) {
     let mut enigo = init_enigo();
+
+    // The format is <JSKeyCode>--<raw/key>--<JSKey>
+    let parts: Vec<_> = key_information.split("--").collect();
+    let key_code = parts[0];
+    let raw = parts[1] == "raw";
+    let key_unicode = parts[2].chars().nth(0);
+
+    // println!("Key Type: {}, {}, {}", key_code, raw, parts[2]);
 
     match translate(key_code) {
         KeyWrapper::KeyEnum(translated_key) => {
@@ -179,23 +192,32 @@ pub fn keyboard_various(key_code: &str, down: bool) {
                     false => enigo::Direction::Release,
                 },
             );
-            println!(
-                "Executed translated key: {}={:?}, down: {}",
-                key_code, translated_key, down
-            )
         }
-        KeyWrapper::Raw(translated_key) => {
-            let _ = enigo.raw(
-                translated_key,
-                match down {
-                    true => enigo::Direction::Press,
-                    false => enigo::Direction::Release,
-                },
-            );
-            println!(
-                "Executed raw key: {}={:?}, down: {}",
-                key_code, translated_key, down
-            )
+        KeyWrapper::Raw(translated_raw_code) => {
+            if raw || key_code == "AltRight" {
+                let _ = enigo.raw(
+                    translated_raw_code,
+                    match down {
+                        true => enigo::Direction::Press,
+                        false => enigo::Direction::Release,
+                    },
+                );
+            } else {
+                match key_unicode {
+                    Some(key_unicode) => {
+                        let _ = enigo.key(
+                            enigo::Key::Unicode(key_unicode),
+                            match down {
+                                true => enigo::Direction::Press,
+                                false => enigo::Direction::Release,
+                            },
+                        );
+                    }
+                    None => {
+                        println!("Non-Raw mode, but did not get a valid char")
+                    }
+                }
+            }
         }
         KeyWrapper::None => {
             println!(

@@ -21,8 +21,8 @@
         @focusout="liveTypeFocus = false"
     />
     <br />
-    <input type="checkbox" id="raw" v-model="liveTypeRaw" />
-    <label for="raw">Send Raw Keycodes</label>
+    <input type="checkbox" id="unicode" v-model="liveTypeUnicode" />
+    <label for="unicode">Send Unicode Keycodes</label>
 </template>
 
 <script setup lang="ts">
@@ -35,7 +35,7 @@
     const passwordField = ref(false);
 
     const liveTypeFocus = ref(false);
-    const liveTypeRaw = ref(false);
+    const liveTypeUnicode = ref(false);
 
     function preventAndSend(event: Event) {
         let eventTyped = event as KeyboardEvent;
@@ -48,7 +48,7 @@
         if (codeToSend == "NumpadEnter") {
             codeToSend = "Super"; // Numpad Enter sends super, as we can not reliably detect that otherwise
         }
-        codeToSend += "--" + (liveTypeRaw.value ? "raw" : "key") + "--" + eventTyped.key;
+        codeToSend += "--" + (liveTypeUnicode.value ? "key" : "raw") + "--" + eventTyped.key;
         mainStore.checkedEncryptedBackendCommunication(method, codeToSend, "ack_key");
     }
     watch(liveTypeFocus, () => {
