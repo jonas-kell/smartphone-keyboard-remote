@@ -34,6 +34,7 @@ fn translate(key: &str) -> KeyWrapper {
     match key {
         // Control Keys
         "Super" => KeyWrapper::KeyEnum(enigo::Key::Meta),
+        "Space" => KeyWrapper::KeyEnum(enigo::Key::Space),
         "Escape" => KeyWrapper::KeyEnum(enigo::Key::Escape),
         "Tab" => KeyWrapper::KeyEnum(enigo::Key::Tab),
         "CapsLock" => KeyWrapper::KeyEnum(enigo::Key::CapsLock),
@@ -56,7 +57,7 @@ fn translate(key: &str) -> KeyWrapper {
         "Home" => KeyWrapper::KeyEnum(enigo::Key::Home),
         "NumLock" => KeyWrapper::KeyEnum(enigo::Key::Numlock),
         "NumpadEnter" => KeyWrapper::KeyEnum(enigo::Key::Return),
-        "AltRight" => KeyWrapper::Raw(92), // special case
+        "AltRight" => KeyWrapper::Raw(92), // special case, extra filtered below, because AltGr is not supported by enigos keys directly
 
         // Extra Keys
         "Backquote" => KeyWrapper::Raw(49),
@@ -89,7 +90,7 @@ fn translate(key: &str) -> KeyWrapper {
         "KeyE" => KeyWrapper::Raw(26),
         "KeyR" => KeyWrapper::Raw(27),
         "KeyT" => KeyWrapper::Raw(28),
-        "KeyZ" => KeyWrapper::Raw(29),
+        "KeyY" => KeyWrapper::Raw(29),
         "KeyU" => KeyWrapper::Raw(30),
         "KeyI" => KeyWrapper::Raw(31),
         "KeyO" => KeyWrapper::Raw(32),
@@ -103,7 +104,7 @@ fn translate(key: &str) -> KeyWrapper {
         "KeyJ" => KeyWrapper::Raw(44),
         "KeyK" => KeyWrapper::Raw(45),
         "KeyL" => KeyWrapper::Raw(46),
-        "KeyY" => KeyWrapper::Raw(52),
+        "KeyZ" => KeyWrapper::Raw(52),
         "KeyX" => KeyWrapper::Raw(53),
         "KeyC" => KeyWrapper::Raw(54),
         "KeyV" => KeyWrapper::Raw(55),
